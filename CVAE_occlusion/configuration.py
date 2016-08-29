@@ -17,8 +17,8 @@ regularization_weight = 0.01
 euclidean_weight = 1.0
 
 # Iteration Number and batch size
-n_steps = 10000
-batch_size = 1000
+n_steps = 100000
+batch_size = 2000
 lr = 0.02
 momentum = 0.6
 decay = 0.8
@@ -40,6 +40,6 @@ cvae_summary_name = 'cvae_train'
 snapshot_on = 50
 
 
-LOSS_LIMIT = 50
+LOSS_LIMIT = 10
 # test
 test_iter = 100

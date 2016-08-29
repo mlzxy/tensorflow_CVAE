@@ -7,8 +7,8 @@ regularization_weight = 0
 euclidean_weight = 1.0
 
 # Iteration Number and batch size
-n_steps = 5000
-batch_size = 100
+n_steps = 1e5
+batch_size = 1000
 
 
 
