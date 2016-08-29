@@ -33,8 +33,7 @@ W_encoder_input_hidden = weight_variable([input_dim,hidden_encoder_dim])
 b_encoder_input_hidden = bias_variable([hidden_encoder_dim])
 
 # loss 1: Computes half the L2 norm of a tensor without the sqrt
-# output = sum(t ** 2) / 2, why VAE needs this? It should be KL-Divergence + l2_loss(X-f(z,Q))
-# is this like a regularization?
+# output = sum(t ** 2) / 2, VAE may not need this. It should be KL-Divergence + l2_loss(X-f(z,Q)), regularization
 l2_loss += tf.nn.l2_loss(W_encoder_input_hidden)
 
 # Hidden layer encoder, relu(input * W + bias)
@@ -45,7 +44,7 @@ hidden_encoder = tf.nn.relu(tf.matmul(x, W_encoder_input_hidden) + b_encoder_inp
 W_encoder_hidden_mu = weight_variable([hidden_encoder_dim,latent_dim])
 b_encoder_hidden_mu = bias_variable([latent_dim])
 
-# another regulariation?
+# another regulariation
 l2_loss += tf.nn.l2_loss(W_encoder_hidden_mu)
 
 # Mu encoder, output is mu

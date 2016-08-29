@@ -13,7 +13,7 @@ batch_size = 100
 
 
 # Model save
-vae_model_path = './save/vae/'
+vae_model_path = './save/'
 model_name = 'model.ckpt'
 vae_summary_name = 'vae_train'
 snapshot_on = 50
