@@ -48,7 +48,7 @@ with tf.Session() as sess:
         print("Initializing parameters")
         sess.run(tf.initialize_all_variables())
 
-    for step in range(1, n_steps):
+    for step in range(1, int(n_steps)):
         # Very useful method from DataSet Class.
         batch, _ = mnist.train.next_batch(batch_size)
 
