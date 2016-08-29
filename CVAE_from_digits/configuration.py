@@ -13,16 +13,16 @@ y_dim_second = 10
 latent_y_dim_first = 5
 latent_y_dim_second = 5
 
-regularization_weight = 0
+regularization_weight = 0.01
 euclidean_weight = 1.0
 
 # Iteration Number and batch size
-n_steps = 5000
-batch_size = 600
-lr = 0.01
+n_steps = 10000
+batch_size = 1000
+lr = 0.02
 momentum = 0.6
 decay = 0.8
-optimizer = RMSProp
+optimizer = Adam
 
 
 # Model save

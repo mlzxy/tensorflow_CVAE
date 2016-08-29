@@ -1,7 +1,9 @@
 from __future__ import division
 from configuration import *
+import numpy as np
 import os.path
 # Use Python3, python2 will probably cause numpy version problem with tf in osx.
+# Because osx has a default python in /Library/System/..., To load tf python2.7 should change the sys.path first, then load.
 import tensorflow as tf
 
 # the mnist structure is like a class:  mnist.{validation,test,train}.{images,labels,num_examples, epochs_completed}
@@ -41,7 +43,8 @@ with tf.Session() as sess:
     for step in range(1, n_steps):
         # Very useful method from DataSet Class.
         batch, batch_label = mnist.train.next_batch(batch_size)
-        feed_dict = {x: batch, y: batch_label.reshape((batch_size, 1))}
+        batch_label = np.eye(10)[batch_label]
+        feed_dict = {x: batch, y: batch_label}
         _, cur_loss, summary_str = sess.run([train_step, loss, summary_op], feed_dict=feed_dict)
         summary_writer.add_summary(summary_str, step)
         if step % snapshot_on == 0:
