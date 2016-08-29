@@ -40,5 +40,6 @@ cvae_summary_name = 'cvae_train'
 snapshot_on = 50
 
 
+LOSS_LIMIT = 50
 # test
 test_iter = 100
