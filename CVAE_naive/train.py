@@ -24,6 +24,9 @@ with tf.Session() as sess:
     # and add summaries and events to it. The class updates the file contents asynchronously.
     # This allows a training program to call methods to add data to the file directly from the training loop,
     # without slowing down training.
+    if not os.path.exists(cvae_model_path):
+        os.mkdir(cvae_model_path)
+
     summary_writer = tf.train.SummaryWriter(cvae_summary_name, # logdir, for visualizing training using summaries.
                                             graph_def=sess.graph_def)
 
