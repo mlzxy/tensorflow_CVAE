@@ -8,8 +8,10 @@ saver = tf.train.Saver()
 
 def test(sess):
     normalized_z = np.random.normal(0, 1.0, latent_dim).reshape((1, latent_dim))
-    label = 4
-    feed_dict = {test_epsilon: normalized_z, test_y: np.array([label]).reshape((1,1))}
+    label = 3
+    label_vec = np.zeros((1,10))
+    label_vec[0,label] = 1
+    feed_dict = {test_epsilon: normalized_z, test_y: label_vec}
     r = sess.run(test_x_hat, feed_dict=feed_dict)
     return [r.reshape((28, 28)), label]
 
