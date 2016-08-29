@@ -26,28 +26,32 @@ def bias_variable(shape):
 # one dimension here
 x = tf.placeholder("float", shape=[None, input_dim])
 # use for label
-y = tf.placeholder("float", shape=[None, 1])
-
-xy = tf.concat(1, [x, y])
+y = tf.placeholder("float", shape=[None, input_dim])
 
 # regularization
 l2_loss = tf.constant(0.0)
 
 # the hidden dimension, the W/b are not used to calculate z, but the sufficient statistics of distribution of z,
 # which are mu and sigma.
-W_encoder_input_hidden = weight_variable([input_dim+1, hidden_encoder_dim])
+W_encoder_input_hidden = weight_variable([input_dim, hidden_encoder_dim])
 b_encoder_input_hidden = bias_variable([hidden_encoder_dim])
-
-# loss 1: Computes half the L2 norm of a tensor without the sqrt
-# output = sum(t ** 2) / 2, CVAE may not need this. It should be KL-Divergence + l2_loss(X-f(z,Q)), regularization
 l2_loss += tf.nn.l2_loss(W_encoder_input_hidden)
+hidden_encoder_without_y = tf.nn.relu(tf.matmul(x, W_encoder_input_hidden) + b_encoder_input_hidden)
 
-# Hidden layer encoder, relu(input * W + bias)
-hidden_encoder = tf.nn.relu(tf.matmul(xy, W_encoder_input_hidden) + b_encoder_input_hidden)
+
+# Fuse the y information into the hidden_encoder.
+W_encoder_y_hidden_first = weight_variable([input_dim, hidden_encoder_dim])
+b_encoder_y_hidden_first = bias_variable([hidden_encoder_dim])
+y_first = tf.nn.relu(tf.matmul(y, W_encoder_y_hidden_first) + b_encoder_y_hidden_first)
+l2_loss += tf.nn.l2_loss(W_encoder_y_hidden_first)
+w_pixel_encoder = tf.Variable(0.5, name="weight_pixel_encoder")
+w_occpixel_encoder = tf.Variable(0.5, name="weight_occpixel_encoder")
+hidden_encoder = hidden_encoder_without_y*w_pixel_encoder + y_first*w_occpixel_encoder
+
 
 # Ok there is another layer between the mu and sigma, X->hidden->latent (mu/sigma)
 # obviously we could use more
-W_encoder_hidden_mu = weight_variable([hidden_encoder_dim,latent_dim])
+W_encoder_hidden_mu = weight_variable([hidden_encoder_dim, latent_dim])
 b_encoder_hidden_mu = bias_variable([latent_dim])
 
 # another regulariation
@@ -57,7 +61,7 @@ l2_loss += tf.nn.l2_loss(W_encoder_hidden_mu)
 mu_encoder = tf.matmul(hidden_encoder, W_encoder_hidden_mu) + b_encoder_hidden_mu
 
 # Seperate Layer for sigma
-W_encoder_hidden_sigma = weight_variable([hidden_encoder_dim,latent_dim])
+W_encoder_hidden_sigma = weight_variable([hidden_encoder_dim, latent_dim])
 b_encoder_hidden_sigma = bias_variable([latent_dim])
 l2_loss += tf.nn.l2_loss(W_encoder_hidden_sigma)
 
@@ -73,10 +77,25 @@ std_encoder = tf.exp(0.5 * sigma_encoder)
 # z is the latent variable, now we go to the decoding part.
 z = mu_encoder + tf.mul(std_encoder, epsilon)
 
-zy = tf.concat(1, [z, y])
+###################### insert the y information into the latent variable.  #######################
+W_decoder_y_to_hidden = weight_variable([input_dim, hidden_decoder_dim])
+b_decoder_y_to_hidden = bias_variable([hidden_decoder_dim])
+l2_loss += tf.nn.l2_loss(W_decoder_y_to_hidden)
+y_hidden_decoder = tf.nn.relu(tf.matmul(y, W_decoder_y_to_hidden) + b_decoder_y_to_hidden)
 
-# Return from hidden, this is very similar to DRAW structure, but DRAW structure is less explainable in my opinion.
-W_decoder_z_hidden = weight_variable([latent_dim+1,hidden_decoder_dim])
+W_decoder_y_to_latent = weight_variable([hidden_decoder_dim, latent_dim])
+l2_loss += tf.nn.l2_loss(W_decoder_y_to_latent)
+b_decoder_y_to_latent = bias_variable([latent_dim])
+y_decoder_first = tf.nn.relu(tf.matmul(y_hidden_decoder, W_decoder_y_to_latent) + b_decoder_y_to_latent)
+
+w_z_decoder = tf.Variable(0.5, name="weight_z_decoder")
+w_y_decoder = tf.Variable(0.5, name="weight_y_decoder")
+zy = z * w_z_decoder + y_decoder_first * w_y_decoder
+#########################################################
+
+# Return from hidden, this is very similar to DRAW structure, but DRAW structure is less explainable in my opinion/or intentionally
+# disclose those information.
+W_decoder_z_hidden = weight_variable([latent_dim , hidden_decoder_dim])
 b_decoder_z_hidden = bias_variable([hidden_decoder_dim])
 # regularization all over the place.
 l2_loss += tf.nn.l2_loss(W_decoder_z_hidden)
@@ -120,7 +139,12 @@ regularized_loss = loss + regularization_weight * l2_loss
 # Outputs a Summary protocol buffer with scalar values.
 loss_summ = tf.scalar_summary("loss", loss)
 # Optimizer that implements the Adam algorithm, could try others.
-train_step = tf.train.AdamOptimizer(0.01).minimize(regularized_loss)
+if optimizer == Adam:
+    train_step = tf.train.AdamOptimizer(lr).minimize(regularized_loss)
+elif optimizer == RMSProp:
+    train_step = tf.train.RMSPropOptimizer(lr, momentum=momentum, decay=decay).minimize(regularized_loss)
+else:
+    raise  "Not a valid optimizer"
 
 # add op for merging summary, Merges all summaries collected in the default graph, like a common procedure.
 summary_op = tf.merge_all_summaries()
@@ -129,7 +153,11 @@ summary_op = tf.merge_all_summaries()
 
 # ===================================== Exportation for Inference ===================================== #
 test_epsilon = tf.placeholder("float", shape=(None, latent_dim))
-test_y = tf.placeholder("float", shape=(None, 1))
-test_z = tf.concat(1, [test_epsilon, test_y])
+test_y = tf.placeholder("float", shape=(None, input_dim))
+
+
+test_y_decoder_hidden = tf.nn.relu(tf.matmul(test_y, W_decoder_y_to_hidden) + b_decoder_y_to_hidden)
+test_y_decoder_latent = tf.nn.relu(tf.matmul(test_y_decoder_hidden, W_decoder_y_to_latent) + b_decoder_y_to_latent)
+test_z = test_epsilon * w_z_decoder + test_y_decoder_latent* w_y_decoder
 test_hidden_decoder = tf.nn.relu(tf.matmul(test_z, W_decoder_z_hidden) + b_decoder_z_hidden)
 test_x_hat = tf.nn.sigmoid(tf.matmul(test_hidden_decoder, W_decoder_hidden_reconstruction) + b_decoder_hidden_reconstruction)

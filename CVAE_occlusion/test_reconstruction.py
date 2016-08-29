@@ -12,9 +12,11 @@ saver = tf.train.Saver()
 def test(sess):
     rand_idx = randint(0, mnist.test.num_examples)
     the_image, the_label = mnist.test.images[rand_idx], mnist.test.labels[rand_idx]
+    # use occlusion here
+
     feed_dict = {x: the_image.reshape((1, input_dim)), y: the_label.reshape((1, 1))}
     r = sess.run(x_hat_output, feed_dict=feed_dict)
-    return [r.reshape((28,28)), the_image.reshape((28, 28))]
+    return [r.reshape((28,28)), the_image.reshape((28, 28)), the_label]
 
 
 results = []
@@ -37,8 +39,8 @@ def saveFig(img, path):
 
 for i in range(test_iter):
     r = results[i]
-    saveFig(r[0], cvae_model_path + str(i) + '.reconstructed.png')
-    saveFig(r[1], cvae_model_path + str(i) + '.origin.png')
+    saveFig(r[0], cvae_model_path + str(i) + '.reconstructed.label-' + str(r[2]) + '.png')
+    saveFig(r[1], cvae_model_path + str(i) + '.origin.label-'  + str(r[2])  + '.png')
 
 print("Finished")
 

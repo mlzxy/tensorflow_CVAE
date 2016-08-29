@@ -32,6 +32,6 @@ def saveFig(img, path):
 
 for i in range(test_iter):
     r = results[i]
-    saveFig(r[0], vae_model_path + str(i) + '.generated.png')
+    saveFig(r[0], vae_model_path + str(i) + '.generated_random.png')
 
 print("Finished")
