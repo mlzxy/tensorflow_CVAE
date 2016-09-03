@@ -36,6 +36,21 @@ Following is generated images for number 3:
 ![](CVAE_from_digits/results/generated_images/12.generated.label-3.png)
 ### CVAE Noise/Occlusion removal
 
+For example:
+
+original: ![](CVAE_occlusion/results/output_images/1.origin.png)
+occluded: ![](CVAE_occlusion/results/output_images/1.occluded.png)
+infered: ![](CVAE_occlusion/results/output_images/1.reconstructed.png) (has inferred shape in the occluded area)
+
+But it generally works not so good, using Basic VAE could even perform better, I need to experiment more on the network. 
+
+
+## How to use
+
+In each network dir, there is for example [VAE/results/save](VAE/results/save) dir. This is the saved tensorflow model, copy it to [VAE](VAE), and run `python test_generation.py`.  You will get generated images in [VAE/save](VAE/save). The other two networks are similarly used. 
+
+
+
 
 
 
