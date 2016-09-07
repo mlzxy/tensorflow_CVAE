@@ -139,3 +139,4 @@ ENV/
 */save/
 */MNIST/
 */*_train/
+*/*_DATA/
