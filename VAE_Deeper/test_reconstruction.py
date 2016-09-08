@@ -19,7 +19,7 @@ def test(sess):
     image, label = cifar.next_batch('test', 1)
     feed_dict = {x: image.reshape((1, input_dim))/255}
     r = sess.run(x_hat_output, feed_dict=feed_dict)
-    return [r.reshape((3, 32, 32))*255, image.reshape((3, 32,32))]
+    return [r.reshape((CHANNEL, SIZE, SIZE))*255, image.reshape((CHANNEL, SIZE,SIZE))]
 
 
 results = []

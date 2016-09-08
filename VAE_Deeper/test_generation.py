@@ -9,7 +9,7 @@ def test(sess):
     normalized_z = np.random.normal(0, 1.0, latent_dim).reshape((1, latent_dim))
     feed_dict = {test_epsilon: normalized_z}
     r = sess.run(test_x_hat, feed_dict=feed_dict)
-    return [r.reshape((3, 32, 32))]
+    return [r.reshape((CHANNEL, SIZE, SIZE))]
 
 
 results = []

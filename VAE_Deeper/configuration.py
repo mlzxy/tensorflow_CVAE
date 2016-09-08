@@ -1,7 +1,10 @@
-input_dim = 3*32*32
-hidden_encoder_dim = 800
-hidden_decoder_dim = 800
-latent_dim = 40
+SIZE = 32
+CHANNEL = 1
+
+input_dim = CHANNEL*SIZE*SIZE
+hidden_encoder_dim = 400
+hidden_decoder_dim = 400
+latent_dim = 20
 regularization_weight = 0
 euclidean_weight = 0.0
 
