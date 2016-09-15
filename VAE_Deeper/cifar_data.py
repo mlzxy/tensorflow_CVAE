@@ -3,7 +3,7 @@ import random as rd
 from configuration import *
 import numpy as np
 
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 
 train = cifar10.CIFAR10(('train',))
 test = cifar10.CIFAR10(('test',))

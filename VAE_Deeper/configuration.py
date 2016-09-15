@@ -1,5 +1,7 @@
 SIZE = 32
-CHANNEL = 3
+CHANNEL = 1
+
+LABEL = 0
 
 input_dim = CHANNEL*SIZE*SIZE
 hidden_encoder_dim = 400

@@ -38,9 +38,10 @@ with tf.Session() as sess:
 
     for step in range(1, int(n_steps)):
         # Very useful method from DataSet Class.
-        images, _ = cifar.next_batch('train', batch_size)
+        images, _ = cifar.next_batch('train', batch_size, label=LABEL)
         # images = cifar.im2double(images)
-        feed_dict = {x: images.reshape((batch_size, input_dim))/255}
+        images = images.swapaxes(1, 3).swapaxes(1,2)
+        feed_dict = {x: images/255.0}
         __, cur_loss, summary_str = sess.run([train_step, loss, summary_op], feed_dict=feed_dict)
         summary_writer.add_summary(summary_str, step)
         if step % snapshot_on == 0:
