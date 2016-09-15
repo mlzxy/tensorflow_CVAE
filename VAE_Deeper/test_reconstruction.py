@@ -38,12 +38,12 @@ with tf.Session() as sess:
 from matplotlib import pyplot as plt
 
 def saveFig(img, path):
-    plt.imsave(path, 255*img.swapaxes(0,2).swapaxes(0,1))
+    plt.imsave(path, 255*img)
 
 for i in range(test_iter):
     r = results[i]
-    saveFig(r[0], vae_model_path + str(i) + '.reconstructed.png')
-    saveFig(r[1], vae_model_path + str(i) + '.origin.png')
+    saveFig(r[0].reshape((SIZE,SIZE)), vae_model_path + str(i) + '.reconstructed.png')
+    saveFig(r[1].reshape((SIZE,SIZE)), vae_model_path + str(i) + '.origin.png')
 
 print("Finished")
 
